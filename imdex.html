@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Health is Wealth — Walk, Earn &amp; Win</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<style>
+/* ===== CSS VARIABLES ===== */
+:root{
+  --g1:#071c10;--g2:#0d4a28;--g3:#12803e;--g4:#1ab358;
+  --gold:#f0b429;--gold2:#fad369;--gold3:#8a6210;
+  --bg:#f2faf5;--bg2:#e0f4ea;--bg3:#c8ead8;
+  --surf:#fff;--bdr:#b8ddc8;--bdr2:#90c8a8;
+  --txt:#061810;--txt2:#1a3828;--txt3:#2e6040;--txt4:#5a9070;
+  --red:#e03030;--orange:#f07c20;
+  --radius:14px;--radius2:20px;
+  --shadow:0 4px 24px rgba(7,28,16,.10);
+  --shadow2:0 8px 40px rgba(7,28,16,.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--txt);overflow-x:hidden}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* ===== UTILITY ===== */
+.hidden{display:none!important}
+.bold{font-weight:700}
+.center{text-align:center}
+.green{color:var(--g3)}
+.gold{color:var(--gold3)}
+.red{color:var(--red)}
+.small{font-size:.82rem}
+.flex{display:flex;align-items:center}
+.flex-col{display:flex;flex-direction:column}
+.gap4{gap:4px}.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.w100{width:100%}
+.ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== SPLASH ===== */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(160deg,var(--g1) 0%,var(--g2) 60%,var(--g3) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;
+}
+.splash-logo{
+  width:88px;height:88px;border-radius:28px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.8rem;
+  box-shadow:0 0 0 8px rgba(240,180,41,.18),0 8px 40px rgba(0,0,0,.4);
+  animation:logoPop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes logoPop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.splash-title{
+  font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:800;
+  color:#fff;text-align:center;letter-spacing:-.5px;
+  animation:fadeUp .5s .3s both;
+}
+.splash-sub{color:rgba(255,255,255,.65);font-size:.95rem;animation:fadeUp .5s .4s both;}
+.splash-dots{display:flex;gap:8px;margin-top:10px;}
+.splash-dot{
+  width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);
+  animation:dotPulse 1s infinite alternate;
+}
+.splash-dot:nth-child(2){animation-delay:.2s}
+.splash-dot:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{to{background:rgba(255,255,255,.9);transform:scale(1.3)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ===== AUTH SCREEN ===== */
+#authScreen{
+  min-height:100vh;background:linear-gradient(160deg,var(--g1) 0%,var(--g2) 55%,var(--bg3) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;gap:0;
+}
+.auth-header{text-align:center;margin-bottom:28px;}
+.auth-logo{
+  width:64px;height:64px;border-radius:20px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  margin:0 auto 14px;box-shadow:0 4px 24px rgba(240,180,41,.4);
+}
+.auth-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:#fff;font-weight:800}
+.auth-sub{color:rgba(255,255,255,.6);font-size:.9rem;margin-top:4px}
+.auth-card{
+  background:var(--surf);border-radius:var(--radius2);padding:26px 22px;
+  width:100%;max-width:400px;box-shadow:var(--shadow2);
+}
+.auth-tabs{display:flex;background:var(--bg2);border-radius:10px;padding:3px;margin-bottom:22px;}
+.auth-tab{
+  flex:1;padding:9px;border-radius:8px;font-size:.9rem;font-weight:600;
+  background:transparent;color:var(--txt4);transition:.2s;
+}
+.auth-tab.active{background:var(--surf);color:var(--g3);box-shadow:0 2px 8px rgba(7,28,16,.1)}
+.field-group{margin-bottom:14px;}
+.field-label{font-size:.82rem;font-weight:600;color:var(--txt3);margin-bottom:5px;}
+.field-input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:10px;
+  font-size:.95rem;background:var(--bg);color:var(--txt);
+  transition:border-color .2s;
+}
+.field-input:focus{border-color:var(--g3)}
+.field-input::placeholder{color:var(--txt4);opacity:.7}
+.btn-primary{
+  width:100%;padding:14px;border-radius:11px;
+  background:linear-gradient(135deg,var(--g3),var(--g2));
+  color:#fff;font-size:1rem;font-weight:700;
+  box-shadow:0 4px 16px rgba(18,128,62,.35);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-primary:active{transform:scale(.97)}
+.btn-gold{
+  width:100%;padding:14px;border-radius:11px;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  color:#fff;font-size:1rem;font-weight:700;
+  box-shadow:0 4px 16px rgba(240,180,41,.35);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-gold:active{transform:scale(.97)}
+.auth-note{font-size:.8rem;color:var(--txt4);text-align:center;margin-top:14px;}
+
+/* ===== MAIN APP ===== */
+#userApp{display:none;flex-direction:column;min-height:100vh;padding-bottom:72px}
+.app-header{
+  background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 100%);
+  padding:52px 18px 18px;
+  position:sticky;top:0;z-index:100;
+}
+.app-header-row{display:flex;align-items:center;justify-content:space-between;}
+.app-greeting{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:500}
+.app-name{color:#fff;font-size:1.15rem;font-weight:700;margin-top:1px}
+.app-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.1rem;color:var(--g1);
+  flex-shrink:0;
+}
+.app-content{flex:1;padding:0 14px;margin-top:16px;}
+
+/* ===== WALLET CARD ===== */
+.wallet-card{
+  background:linear-gradient(145deg,var(--g2),var(--g1));
+  border-radius:var(--radius2);padding:22px 20px;
+  box-shadow:var(--shadow2);margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.wallet-card::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:140px;height:140px;border-radius:50%;
+  background:rgba(26,179,88,.12);
+}
+.wallet-card::after{
+  content:'';position:absolute;bottom:-40px;left:-20px;
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(240,180,41,.08);
+}
+.wallet-label{color:rgba(255,255,255,.55);font-size:.8rem;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.wallet-amount{
+  color:#fff;font-family:'Playfair Display',serif;
+  font-size:2.4rem;font-weight:800;margin:4px 0;line-height:1;
+}
+.wallet-sub{color:rgba(255,255,255,.45);font-size:.78rem}
+.wallet-actions{display:flex;gap:10px;margin-top:18px;}
+.wallet-btn{
+  flex:1;padding:11px 8px;border-radius:10px;font-size:.85rem;font-weight:700;
+  transition:transform .15s;
+}
+.wallet-btn:active{transform:scale(.96)}
+.wbtn-withdraw{background:var(--gold);color:var(--g1)}
+.wbtn-history{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.wallet-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.wstat{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 8px;text-align:center}
+.wstat-val{color:#fff;font-weight:700;font-size:1rem}
+.wstat-lbl{color:rgba(255,255,255,.45);font-size:.7rem;margin-top:2px}
+
+/* ===== SECTION TITLE ===== */
+.sec-title{font-size:.78rem;font-weight:700;color:var(--txt4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+
+/* ===== GPS CARD ===== */
+.gps-card{
+  background:var(--surf);border-radius:var(--radius2);
+  padding:18px;box-shadow:var(--shadow);margin-bottom:18px;
+  border:1.5px solid var(--bdr);
+}
+.gps-locked{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border-radius:var(--radius2);padding:20px;text-align:center;
+  margin-bottom:18px;border:1.5px dashed var(--bdr2);
+}
+.gps-lock-icon{font-size:2.2rem;margin-bottom:8px}
+.gps-lock-title{font-weight:700;font-size:1rem;color:var(--txt2)}
+.gps-lock-desc{font-size:.83rem;color:var(--txt4);margin-top:4px;line-height:1.5}
+.gps-price{
+  font-size:1.5rem;font-weight:800;color:var(--g3);
+  font-family:'Playfair Display',serif;margin:10px 0;
+}
+.btn-unlock{
+  padding:13px 28px;border-radius:11px;
+  background:linear-gradient(135deg,var(--g3),var(--g2));
+  color:#fff;font-size:.95rem;font-weight:700;
+  box-shadow:0 4px 16px rgba(18,128,62,.3);
+}
+.gps-active-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.gps-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:600;
+}
+.gps-dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.gps-dot.running{background:var(--g4);animation:gpsPulse 1s infinite alternate}
+@keyframes gpsPulse{to{box-shadow:0 0 0 4px rgba(26,179,88,.25)}}
+.gps-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.gps-stat{
+  background:var(--bg2);border-radius:10px;padding:12px;text-align:center;
+}
+.gps-stat-val{font-size:1.3rem;font-weight:800;color:var(--g3);font-family:'Playfair Display',serif}
+.gps-stat-lbl{font-size:.72rem;color:var(--txt4);margin-top:2px;font-weight:500}
+.gps-progress{margin-bottom:14px}
+.progress-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--g4),var(--g3));border-radius:4px;transition:width .5s}
+.gps-controls{display:flex;gap:8px}
+.gps-btn{
+  flex:1;padding:12px;border-radius:10px;font-size:.88rem;font-weight:700;
+  transition:transform .15s;
+}
+.gps-btn:active{transform:scale(.96)}
+.gbtn-start{background:linear-gradient(135deg,var(--g4),var(--g3));color:#fff}
+.gbtn-pause{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#fff}
+.gbtn-stop{background:rgba(224,48,48,.1);color:var(--red);border:1.5px solid rgba(224,48,48,.2)}
+
+/* ===== REFER CARD ===== */
+.refer-card{
+  background:linear-gradient(145deg,var(--g2),var(--g1));
+  border-radius:var(--radius2);padding:18px;
+  box-shadow:var(--shadow2);margin-bottom:18px;
+}
+.refer-title{color:#fff;font-weight:700;font-size:1rem}
+.refer-sub{color:rgba(255,255,255,.55);font-size:.82rem;margin-top:3px}
+.refer-code-box{
+  background:rgba(255,255,255,.1);border-radius:10px;
+  padding:12px 14px;margin:12px 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.refer-code{color:var(--gold2);font-size:1.05rem;font-weight:800;letter-spacing:2px;font-family:monospace}
+.btn-copy{
+  padding:6px 12px;border-radius:7px;
+  background:rgba(255,255,255,.15);color:#fff;
+  font-size:.8rem;font-weight:600;
+}
+.refer-perks{display:flex;gap:8px;margin-top:4px}
+.refer-perk{
+  flex:1;background:rgba(255,255,255,.07);border-radius:8px;
+  padding:9px;text-align:center;
+}
+.perk-val{color:var(--gold2);font-weight:800;font-size:.95rem}
+.perk-lbl{color:rgba(255,255,255,.45);font-size:.7rem;margin-top:2px}
+
+/* ===== INFO CARDS ROW ===== */
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.info-card{
+  background:var(--surf);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow);border:1.5px solid var(--bdr);
+}
+.info-icon{font-size:1.5rem;margin-bottom:6px}
+.info-val{font-size:1.1rem;font-weight:800;color:var(--txt2)}
+.info-lbl{font-size:.73rem;color:var(--txt4);margin-top:2px}
+
+/* ===== HOW IT WORKS ===== */
+.how-card{
+  background:var(--surf);border-radius:var(--radius2);
+  padding:18px;box-shadow:var(--shadow);margin-bottom:18px;
+  border:1.5px solid var(--bdr);
+}
+.how-step{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--bg2)}
+.how-step:last-child{border-bottom:none}
+.how-num{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g4),var(--g3));
+  color:#fff;font-weight:800;font-size:.82rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.how-text{font-size:.87rem;color:var(--txt2);line-height:1.5;padding-top:4px}
+.how-text b{color:var(--g3)}
+
+/* ===== BOTTOM NAV ===== */
+#bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--surf);border-top:1px solid var(--bdr);
+  display:flex;padding:8px 0 env(safe-area-inset-bottom);
+  box-shadow:0 -4px 20px rgba(7,28,16,.08);
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:4px 0;
+  font-size:.65rem;font-weight:600;color:var(--txt4);
+  transition:color .2s;background:transparent;
+}
+.bnav-item.active{color:var(--g3)}
+.bnav-icon{font-size:1.35rem;line-height:1}
+
+/* ===== TABS ===== */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ===== HISTORY LIST ===== */
+.history-item{
+  background:var(--surf);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow);margin-bottom:8px;
+  border:1.5px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.history-left{}
+.history-type{font-weight:700;font-size:.9rem;color:var(--txt2)}
+.history-date{font-size:.75rem;color:var(--txt4);margin-top:2px}
+.history-amount{font-weight:800;font-size:1rem;color:var(--g3)}
+.history-amount.minus{color:var(--red)}
+.empty-state{
+  text-align:center;padding:40px 20px;color:var(--txt4);
+}
+.empty-icon{font-size:2.5rem;margin-bottom:10px}
+
+/* ===== UPI SHEET ===== */
+#upiSheet{
+  position:fixed;bottom:-100%;left:0;right:0;z-index:500;
+  background:var(--surf);border-radius:20px 20px 0 0;
+  padding:24px 20px 32px;
+  transition:bottom .35s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 -8px 40px rgba(7,28,16,.18);
+}
+#upiSheet.open{bottom:0}
+.sheet-handle{width:38px;height:4px;background:var(--bdr2);border-radius:2px;margin:0 auto 20px}
+.sheet-title{font-size:1.05rem;font-weight:800;color:var(--txt);margin-bottom:18px;text-align:center}
+.upi-balance{
+  background:var(--bg2);border-radius:12px;padding:14px;
+  text-align:center;margin-bottom:16px;
+}
+.upi-bal-lbl{font-size:.8rem;color:var(--txt4);font-weight:500}
+.upi-bal-val{font-size:1.8rem;font-weight:800;color:var(--g3);font-family:'Playfair Display',serif}
+.upi-min-note{font-size:.75rem;color:var(--txt4);margin-top:4px}
+.sheet-overlay{position:fixed;inset:0;z-index:499;background:rgba(0,0,0,.4);display:none}
+.sheet-overlay.open{display:block}
+
+/* ===== PAYMENT MODAL ===== */
+#payModal{
+  position:fixed;inset:0;z-index:600;
+  display:none;align-items:flex-end;justify-content:center;
+}
+#payModal.open{display:flex}
+.pay-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.pay-card{
+  position:relative;z-index:1;
+  background:var(--surf);border-radius:20px 20px 0 0;
+  padding:24px 20px 32px;width:100%;
+}
+.pay-title{font-size:1.1rem;font-weight:800;margin-bottom:6px;text-align:center}
+.pay-sub{font-size:.84rem;color:var(--txt4);text-align:center;margin-bottom:20px;line-height:1.5}
+.pay-amount-box{
+  background:linear-gradient(135deg,var(--g3),var(--g2));
+  border-radius:14px;padding:16px;text-align:center;margin-bottom:18px;
+}
+.pay-amount-lbl{color:rgba(255,255,255,.6);font-size:.78rem;font-weight:500}
+.pay-amount-val{color:#fff;font-size:2rem;font-weight:800;font-family:'Playfair Display',serif}
+.pay-upi-box{
+  background:var(--bg2);border-radius:12px;padding:14px;
+  margin-bottom:16px;text-align:center;
+}
+.pay-upi-lbl{font-size:.78rem;color:var(--txt4);font-weight:500}
+.pay-upi-id{font-size:1.05rem;font-weight:800;color:var(--g2);letter-spacing:.5px;margin-top:4px;font-family:monospace}
+.pay-steps{font-size:.82rem;color:var(--txt3);line-height:2;margin-bottom:16px}
+.pay-steps span{font-weight:700;color:var(--g3)}
+.btn-close-pay{
+  width:100%;padding:12px;border-radius:10px;
+  background:var(--bg2);color:var(--txt3);font-weight:600;margin-top:8px;
+}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  z-index:9999;background:var(--g1);color:#fff;
+  padding:10px 20px;border-radius:30px;font-size:.88rem;font-weight:500;
+  white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);
+  pointer-events:none;display:none;
+  animation:toastIn .2s ease;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ===== ADMIN APP ===== */
+#adminApp{min-height:100vh;background:var(--g1)}
+.admin-header{
+  background:linear-gradient(135deg,var(--g1),var(--g2));
+  padding:52px 18px 18px;
+}
+.admin-title{color:#fff;font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800}
+.admin-sub{color:rgba(255,255,255,.5);font-size:.82rem;margin-top:3px}
+#adminLoginBox{
+  max-width:400px;margin:0 auto;padding:40px 20px;
+}
+.admin-login-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px}
+.admin-field{margin-bottom:14px}
+.admin-label{color:rgba(255,255,255,.55);font-size:.8rem;font-weight:600;margin-bottom:5px}
+.admin-input{
+  width:100%;padding:11px 14px;border-radius:9px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:.95rem;
+}
+.admin-input::placeholder{color:rgba(255,255,255,.3)}
+.admin-input:focus{border-color:var(--g4)}
+.btn-admin-login{
+  width:100%;padding:13px;border-radius:10px;
+  background:linear-gradient(135deg,var(--g4),var(--g3));
+  color:#fff;font-weight:700;font-size:.95rem;
+}
+#adminDash{display:none;padding:16px}
+.admin-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.admin-stat-card{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:14px;
+}
+.admin-stat-val{color:#fff;font-size:1.3rem;font-weight:800;font-family:'Playfair Display',serif}
+.admin-stat-lbl{color:rgba(255,255,255,.45);font-size:.72rem;margin-top:3px}
+.admin-section-title{color:rgba(255,255,255,.6);font-size:.75rem;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin:16px 0 10px}
+.pay-request-card{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:14px;margin-bottom:8px;
+}
+.pay-req-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.pay-req-email{color:#fff;font-weight:600;font-size:.9rem}
+.pay-req-amount{color:var(--gold2);font-weight:800;font-size:1rem}
+.pay-req-utr{color:rgba(255,255,255,.45);font-size:.78rem;margin-top:2px}
+.pay-req-status{
+  display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;
+}
+.status-pending{background:rgba(240,124,32,.2);color:var(--gold2)}
+.status-approved{background:rgba(26,179,88,.2);color:var(--g4)}
+.status-rejected{background:rgba(224,48,48,.2);color:#f88}
+.admin-action-row{display:flex;gap:8px;margin-top:10px}
+.btn-approve{
+  flex:1;padding:9px;border-radius:8px;
+  background:rgba(26,179,88,.2);color:var(--g4);font-weight:700;font-size:.84rem;
+  border:1px solid rgba(26,179,88,.3);
+}
+.btn-reject{
+  flex:1;padding:9px;border-radius:8px;
+  background:rgba(224,48,48,.15);color:#f88;font-weight:700;font-size:.84rem;
+  border:1px solid rgba(224,48,48,.25);
+}
+.withdrawal-card{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:14px;margin-bottom:8px;
+}
+.wd-top{display:flex;justify-content:space-between;align-items:flex-start}
+.wd-email{color:#fff;font-weight:600;font-size:.9rem}
+.wd-amount{color:var(--gold2);font-weight:800}
+.wd-upi{color:rgba(255,255,255,.45);font-size:.78rem;margin-top:2px}
+.btn-wd-done{
+  width:100%;margin-top:10px;padding:9px;border-radius:8px;
+  background:rgba(240,180,41,.15);color:var(--gold2);font-weight:700;
+  border:1px solid rgba(240,180,41,.3);font-size:.84rem;
+}
+.btn-admin-logout{
+  width:100%;padding:13px;border-radius:10px;margin-top:20px;
+  background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);
+  font-weight:600;border:1px solid rgba(255,255,255,.1);
+}
+
+/* ===== LEADERBOARD ===== */
+.leader-item{
+  background:var(--surf);border-radius:var(--radius);padding:13px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow);margin-bottom:8px;border:1.5px solid var(--bdr);
+}
+.leader-rank{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--bg3);color:var(--txt3);
+  font-weight:800;font-size:.82rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.leader-rank.gold-rank{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#fff}
+.leader-rank.silver-rank{background:linear-gradient(135deg,#c0c0c0,#888);color:#fff}
+.leader-rank.bronze-rank{background:linear-gradient(135deg,#cd7f32,#a0522d);color:#fff}
+.leader-name{flex:1;font-weight:600;font-size:.9rem;color:var(--txt2)}
+.leader-km{font-weight:800;color:var(--g3);font-size:.95rem}
+</style>
+</head>
+<body>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- ===== SPLASH ===== -->
+<div id="splash">
+  <div class="splash-logo">🏃</div>
+  <div class="splash-title">Health is Wealth</div>
+  <div class="splash-sub">Walk · Earn · Win</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="authScreen" class="hidden">
+  <div class="auth-header">
+    <div class="auth-logo">🏃</div>
+    <div class="auth-title">Health is Wealth</div>
+    <div class="auth-sub">Walk every step. Earn every rupee.</div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="field-group">
+        <div class="field-label">Email Address</div>
+        <input id="loginEmail" type="email" class="field-input" placeholder="you@example.com"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Password</div>
+        <input id="loginPass" type="password" class="field-input" placeholder="••••••••"/>
+      </div>
+      <button class="btn-primary mt16" id="btnLogin" onclick="doLogin()">Login to My Account</button>
+      <div class="auth-note">Don't have an account? <a onclick="switchAuthTab('register')" style="color:var(--g3);cursor:pointer;font-weight:600">Register Free</a></div>
+    </div>
+    <!-- REGISTER -->
+    <div id="registerForm" class="hidden">
+      <div class="field-group">
+        <div class="field-label">Full Name</div>
+        <input id="regName" type="text" class="field-input" placeholder="Your full name"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Email Address</div>
+        <input id="regEmail" type="email" class="field-input" placeholder="you@example.com"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Password (min 6 chars)</div>
+        <input id="regPass" type="password" class="field-input" placeholder="Create password"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">UPI ID (for withdrawals)</div>
+        <input id="regUpi" type="text" class="field-input" placeholder="yourname@upi"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Referral Code (optional)</div>
+        <input id="regRef" type="text" class="field-input" placeholder="Friend's referral code"/>
+      </div>
+      <button class="btn-primary mt8" onclick="doRegister()">Create Free Account</button>
+      <div class="auth-note">Already have an account? <a onclick="switchAuthTab('login')" style="color:var(--g3);cursor:pointer;font-weight:600">Login</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== USER APP ===== -->
+<div id="userApp">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="app-header-row">
+      <div>
+        <div class="app-greeting">Good day,</div>
+        <div class="app-name" id="headerName">Walker</div>
+      </div>
+      <div class="app-avatar" id="headerAvatar">W</div>
+    </div>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="app-content">
+
+    <!-- HOME TAB -->
+    <div id="tabHome" class="tab-content active">
+
+      <!-- Wallet Card -->
+      <div class="wallet-card">
+        <div class="wallet-label">Total Earnings</div>
+        <div class="wallet-amount">₹<span id="walletAmt">0</span></div>
+        <div class="wallet-sub">Available to withdraw</div>
+        <div class="wallet-stats">
+          <div class="wstat">
+            <div class="wstat-val"><span id="statTotalKm">0</span></div>
+            <div class="wstat-lbl">Total KM</div>
+          </div>
+          <div class="wstat">
+            <div class="wstat-val"><span id="statTodayKm">0</span></div>
+            <div class="wstat-lbl">Today KM</div>
+          </div>
+          <div class="wstat">
+            <div class="wstat-val"><span id="statRefs">0</span></div>
+            <div class="wstat-lbl">Referrals</div>
+          </div>
+        </div>
+        <div class="wallet-actions">
+          <button class="wallet-btn wbtn-withdraw" onclick="openUpiSheet()">💸 Withdraw</button>
+          <button class="wallet-btn wbtn-history" onclick="switchTab('tabHistory')">📋 History</button>
+        </div>
+      </div>
+
+      <!-- GPS Section -->
+      <div class="sec-title">GPS Walking Tracker</div>
+
+      <!-- GPS LOCKED -->
+      <div id="gpsLockedCard" class="gps-locked">
+        <div class="gps-lock-icon">🔒</div>
+        <div class="gps-lock-title">GPS Tracker Locked</div>
+        <div class="gps-lock-desc">Unlock GPS tracking to start earning ₹2 per km walked. One-time payment, lifetime access.</div>
+        <div class="gps-price">₹1,999</div>
+        <button class="btn-unlock" onclick="openPayModal()">Unlock GPS &amp; Start Earning</button>
+      </div>
+
+      <!-- GPS ACTIVE -->
+      <div id="gpsActiveCard" class="gps-card hidden">
+        <div class="gps-active-header">
+          <div class="gps-status">
+            <div class="gps-dot" id="gpsDot"></div>
+            <span id="gpsStatusText">Ready</span>
+          </div>
+          <div class="small" style="color:var(--txt4)">Speed: <b id="gpsSpeed" style="color:var(--g3)">0.0</b> km/h</div>
+        </div>
+        <div class="gps-stats">
+          <div class="gps-stat">
+            <div class="gps-stat-val" id="sessionKmDisplay">0.000</div>
+            <div class="gps-stat-lbl">Session KM</div>
+          </div>
+          <div class="gps-stat">
+            <div class="gps-stat-val">₹<span id="sessionEarnDisplay">0.00</span></div>
+            <div class="gps-stat-lbl">Session Earned</div>
+          </div>
+        </div>
+        <div class="gps-progress">
+          <div class="flex" style="justify-content:space-between">
+            <span class="small" style="color:var(--txt4)">KM Limit Used</span>
+            <span class="small bold"><span id="kmUsedDisplay">0</span>/<span id="kmLimitDisplay">300</span> KM</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="kmProgressFill" style="width:0%"></div></div>
+        </div>
+        <div class="gps-controls">
+          <button class="gps-btn gbtn-start" id="btnStart" onclick="startGPS()">▶ Start</button>
+          <button class="gps-btn gbtn-pause" id="btnPause" onclick="pauseGPS()" disabled>⏸ Pause</button>
+          <button class="gps-btn gbtn-stop" id="btnStop" onclick="stopGPS()" disabled>⏹ Stop</button>
+        </div>
+        <div class="small center mt8" style="color:var(--txt4)">GPS accuracy updates every 5 seconds</div>
+      </div>
+
+      <!-- Refer Card -->
+      <div class="sec-title">Refer &amp; Earn</div>
+      <div class="refer-card">
+        <div class="refer-title">🎁 Invite Friends, Earn Together</div>
+        <div class="refer-sub">Share your code and earn bonus KM + cash rewards</div>
+        <div class="refer-code-box">
+          <div class="refer-code" id="refCodeDisplay">--------</div>
+          <button class="btn-copy" onclick="copyRefCode()">Copy</button>
+        </div>
+        <div class="refer-perks">
+          <div class="refer-perk">
+            <div class="perk-val">₹300</div>
+            <div class="perk-lbl">Per Referral</div>
+          </div>
+          <div class="refer-perk">
+            <div class="perk-val">+300 KM</div>
+            <div class="perk-lbl">Extra Limit</div>
+          </div>
+          <div class="refer-perk">
+            <div class="perk-val" id="totalRefCount">0</div>
+            <div class="perk-lbl">Your Refs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Row -->
+      <div class="info-row">
+        <div class="info-card">
+          <div class="info-icon">💰</div>
+          <div class="info-val">₹2/km</div>
+          <div class="info-lbl">Earning Rate</div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">🎯</div>
+          <div class="info-val"><span id="kmRemainingDisplay">300</span> km</div>
+          <div class="info-lbl">Limit Remaining</div>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="sec-title">How It Works</div>
+      <div class="how-card">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-text">Pay <b>₹1,999</b> once to unlock GPS walking tracker</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-text">Walk anywhere — earn <b>₹2 per km</b> with real GPS</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-text">Refer friends → get <b>₹300 bonus + 300 km extra</b> per referral</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div class="how-text">Withdraw to your <b>UPI ID</b> anytime (min ₹100)</div>
+        </div>
+      </div>
+
+    </div><!-- /tabHome -->
+
+    <!-- HISTORY TAB -->
+    <div id="tabHistory" class="tab-content">
+      <div class="sec-title mt8">Walk History</div>
+      <div id="historyList"><div class="empty-state"><div class="empty-icon">📭</div>No walks recorded yet</div></div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="tabLeaderboard" class="tab-content">
+      <div class="sec-title mt8">Top Walkers 🏆</div>
+      <div id="leaderboardList"><div class="empty-state"><div class="empty-icon">🏅</div>Loading leaderboard...</div></div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="tabProfile" class="tab-content">
+      <div class="sec-title mt8">My Profile</div>
+      <div class="how-card">
+        <div style="text-align:center;padding:10px 0">
+          <div class="app-avatar" style="width:60px;height:60px;font-size:1.6rem;margin:0 auto 12px" id="profileAvatar">W</div>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--txt2)" id="profileName">-</div>
+          <div style="font-size:.82rem;color:var(--txt4);margin-top:2px" id="profileEmail">-</div>
+        </div>
+        <div style="border-top:1px solid var(--bg2);margin:12px 0;padding-top:12px">
+          <div class="how-step">
+            <div class="how-num">💳</div>
+            <div class="how-text">UPI ID: <b id="profileUpi">-</b></div>
+          </div>
+          <div class="how-step">
+            <div class="how-num">🔑</div>
+            <div class="how-text">Referral Code: <b id="profileRefCode">-</b></div>
+          </div>
+          <div class="how-step">
+            <div class="how-num">👥</div>
+            <div class="how-text">Total Referrals: <b id="profileRefs">0</b></div>
+          </div>
+          <div class="how-step">
+            <div class="how-num">🔓</div>
+            <div class="how-text">GPS Status: <b id="profileGpsStatus" style="color:var(--red)">Locked</b></div>
+          </div>
+        </div>
+        <div class="field-group mt12">
+          <div class="field-label">Update UPI ID</div>
+          <input id="updateUpiInput" type="text" class="field-input" placeholder="yourname@upi"/>
+        </div>
+        <button class="btn-primary" onclick="updateUpi()">Save UPI ID</button>
+        <button class="btn-gold mt8" onclick="doLogout()" style="margin-top:10px">Logout</button>
+      </div>
+    </div>
+
+  </div><!-- /app-content -->
+</div><!-- /userApp -->
+
+<!-- Bottom Nav -->
+<div id="bnav" class="hidden">
+  <button class="bnav-item active" onclick="switchTab('tabHome')" id="nav-tabHome">
+    <div class="bnav-icon">🏠</div>
+    <span>Home</span>
+  </button>
+  <button class="bnav-item" onclick="switchTab('tabHistory')" id="nav-tabHistory">
+    <div class="bnav-icon">📋</div>
+    <span>History</span>
+  </button>
+  <button class="bnav-item" onclick="switchTab('tabLeaderboard')" id="nav-tabLeaderboard">
+    <div class="bnav-icon">🏆</div>
+    <span>Leaderboard</span>
+  </button>
+  <button class="bnav-item" onclick="switchTab('tabProfile')" id="nav-tabProfile">
+    <div class="bnav-icon">👤</div>
+    <span>Profile</span>
+  </button>
+</div>
+
+<!-- UPI Withdraw Sheet -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeUpiSheet()"></div>
+<div id="upiSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">💸 Withdraw Earnings</div>
+  <div class="upi-balance">
+    <div class="upi-bal-lbl">Available Balance</div>
+    <div class="upi-bal-val">₹<span id="sheetBalance">0</span></div>
+    <div class="upi-min-note">Minimum withdrawal: ₹100</div>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Withdraw Amount (₹)</div>
+    <input id="wdAmount" type="number" class="field-input" placeholder="Enter amount (min ₹100)" min="100"/>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Your UPI ID</div>
+    <input id="wdUpiId" type="text" class="field-input" placeholder="yourname@upi"/>
+  </div>
+  <button class="btn-primary" onclick="submitWithdrawal()">Request Withdrawal</button>
+  <button class="btn-close-pay mt8" onclick="closeUpiSheet()">Cancel</button>
+</div>
+
+<!-- Payment Modal -->
+<div id="payModal">
+  <div class="pay-overlay" onclick="closePayModal()"></div>
+  <div class="pay-card">
+    <div class="pay-title">🔓 Unlock GPS Walking</div>
+    <div class="pay-sub">One-time payment to unlock lifetime GPS tracking and start earning ₹2 per km.</div>
+    <div class="pay-amount-box">
+      <div class="pay-amount-lbl">One-Time Unlock Fee</div>
+      <div class="pay-amount-val">₹1,999</div>
+    </div>
+    <div class="pay-upi-box">
+      <div class="pay-upi-lbl">Pay to this UPI ID</div>
+      <div class="pay-upi-id">bonagirispinoj-1@oksbi</div>
+    </div>
+    <div class="pay-steps">
+      <span>1.</span> Open PhonePe / GPay / Paytm / any UPI app<br>
+      <span>2.</span> Send <b>₹1,999</b> to <b>bonagirispinoj-1@oksbi</b><br>
+      <span>3.</span> Copy the UTR/Transaction ID<br>
+      <span>4.</span> Paste below and submit for approval
+    </div>
+    <div class="field-group">
+      <div class="field-label">UTR / Transaction ID</div>
+      <input id="payUtrInput" type="text" class="field-input" placeholder="Enter your UTR number"/>
+    </div>
+    <button class="btn-primary" onclick="submitPayment()">Submit Payment Proof</button>
+    <button class="btn-close-pay" onclick="closePayModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Admin App -->
+<div id="adminApp" class="hidden">
+  <div class="admin-header">
+    <div class="admin-title">⚡ Admin Panel</div>
+    <div class="admin-sub">Health is Wealth — Management</div>
+  </div>
+
+  <!-- Admin Login -->
+  <div id="adminLoginBox">
+    <div class="admin-login-card">
+      <div style="color:#fff;font-weight:700;margin-bottom:16px;font-size:1rem">Admin Login</div>
+      <div class="admin-field">
+        <div class="admin-label">Email</div>
+        <input id="adminEmail" type="email" class="admin-input" placeholder="admin@example.com"/>
+      </div>
+      <div class="admin-field">
+        <div class="admin-label">Password</div>
+        <input id="adminPass" type="password" class="admin-input" placeholder="••••••••"/>
+      </div>
+      <button class="btn-admin-login" onclick="adminLogin()">Login as Admin</button>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="adminDash">
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-val" id="adminTotalUsers">0</div>
+        <div class="admin-stat-lbl">Total Users</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-val" id="adminUnlocked">0</div>
+        <div class="admin-stat-lbl">GPS Unlocked</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-val" id="adminPendingPay">0</div>
+        <div class="admin-stat-lbl">Pending Payments</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-val" id="adminPendingWd">0</div>
+        <div class="admin-stat-lbl">Pending Withdrawals</div>
+      </div>
+    </div>
+
+    <div class="admin-section-title">⏳ Pending Payment Approvals</div>
+    <div id="adminPayList"><div style="color:rgba(255,255,255,.4);font-size:.85rem;padding:10px">No pending payments</div></div>
+
+    <div class="admin-section-title">💸 Pending Withdrawals</div>
+    <div id="adminWdList"><div style="color:rgba(255,255,255,.4);font-size:.85rem;padding:10px">No pending withdrawals</div></div>
+
+    <button class="btn-admin-logout" onclick="adminLogout()">Logout Admin</button>
+  </div>
+</div>
+
+<script>
+// =============================================================
+//   HEALTH IS WEALTH — Full Production v3.0
+//   UPI: bonagirispinoj-1@oksbi | Unlock: ₹1,999
+// =============================================================
+
+// ========== FIREBASE CONFIG ==========
+const FB_CONFIG = {
+  apiKey: "AIzaSyBIebPXVjzVBZl380ZCELg2LUSCLr-6QrE",
+  authDomain: "neurocoin-ntc.firebaseapp.com",
+  databaseURL: "https://neurocoin-ntc-default-rtdb.firebaseio.com",
+  projectId: "neurocoin-ntc",
+  storageBucket: "neurocoin-ntc.firebasestorage.app",
+  messagingSenderId: "1040732555800",
+  appId: "1:1040732555800:web:55e63b5ff81781c6b1916d",
+  measurementId: "G-6X8T0YQTQ3"
+};
+// ======================================
+
+const ADMIN_EMAIL    = "bonagirispinoj@gmail.com";
+const PLATFORM_UPI   = "bonagirispinoj-1@oksbi";
+const GPS_PRICE      = 1999;
+const EARN_PER_KM    = 2;       // ₹2 per km
+const REF_BONUS_CASH = 300;     // ₹300 per referral
+const REF_BONUS_KM   = 300;     // +300 km per referral
+const BASE_KM_LIMIT  = 300;
+const MIN_WITHDRAW   = 100;
+
+let db, auth, currentUser = null;
+let S = { wallet:0, totalKm:0, todayKm:0, kmLimit:BASE_KM_LIMIT, referralCount:0, gpsUnlocked:false, refCode:"", upiId:"", name:"" };
+
+// GPS state
+let gpsWatchId = null, gpsLastPos = null, gpsLastTimestamp = 0;
+let gpsSessionKm = 0, gpsPendingKm = 0;
+let gpsRunning = false, gpsPaused = false;
+
+// ===== INIT =====
+try {
+  firebase.initializeApp(FB_CONFIG);
+  auth = firebase.auth();
+  db   = firebase.firestore();
+  // Persist login across page refreshes
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+} catch(e){
+  console.error("Firebase init failed:", e);
+  document.getElementById("splash").style.display = "none";
+  document.getElementById("authScreen").classList.remove("hidden");
+}
+
+// Parse referral code from URL
+const urlParams  = new URLSearchParams(location.search);
+const urlRefCode = urlParams.get("ref") || "";
+if(urlRefCode) document.getElementById("regRef").value = urlRefCode;
+
+// ===== AUTH STATE =====
+auth.onAuthStateChanged(async (user) => {
+  document.getElementById("splash").style.display = "none";
+  if(user){
+    currentUser = user;
+    if(user.email === ADMIN_EMAIL){
+      showScreen("admin");
+      await initializeAdminDashboard();
+    } else {
+      showScreen("user");
+      await loadUserData();
+    }
+  } else {
+    showScreen("auth");
+  }
+});
+
+// ===== SCREEN SWITCHER =====
+function showScreen(screen){
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("userApp").style.display   = "none";
+  document.getElementById("bnav").classList.add("hidden");
+  document.getElementById("adminApp").classList.add("hidden");
+
+  if(screen === "auth")  document.getElementById("authScreen").classList.remove("hidden");
+  if(screen === "user"){
+    document.getElementById("userApp").style.display  = "flex";
+    document.getElementById("bnav").classList.remove("hidden");
+  }
+  if(screen === "admin") document.getElementById("adminApp").classList.remove("hidden");
+}
+
+// ===== TAB SWITCHER =====
+function switchTab(tabId){
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".bnav-item").forEach(b => b.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  const navBtn = document.getElementById("nav-" + tabId);
+  if(navBtn) navBtn.classList.add("active");
+
+  if(tabId === "tabHistory")     loadHistory();
+  if(tabId === "tabLeaderboard") loadLeaderboard();
+}
+
+// ===== AUTH TABS =====
+function switchAuthTab(tab){
+  document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("loginForm").classList.add("hidden");
+  document.getElementById("registerForm").classList.add("hidden");
+  if(tab === "login"){
+    document.querySelectorAll(".auth-tab")[0].classList.add("active");
+    document.getElementById("loginForm").classList.remove("hidden");
+  } else {
+    document.querySelectorAll(".auth-tab")[1].classList.add("active");
+    document.getElementById("registerForm").classList.remove("hidden");
+  }
+}
+
+// ===== REGISTER =====
+async function doRegister(){
+  const name  = document.getElementById("regName").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const pass  = document.getElementById("regPass").value;
+  const upi   = document.getElementById("regUpi").value.trim();
+  const refBy = document.getElementById("regRef").value.trim().toUpperCase();
+
+  if(!name||!email||!pass||pass.length<6)
+    return showToast("⚠ Fill all fields (password min 6 chars)");
+
+  const regBtn = document.querySelector('#registerForm .btn-primary');
+  if(regBtn){ regBtn.disabled = true; regBtn.textContent = "Creating account..."; }
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid  = cred.user.uid;
+    const code = await generateUniqueRefCode();
+
+    const userData = {
+      name, email, upiId: upi || "", refCode: code,
+      refBy: refBy || null, referralCount: 0,
+      wallet: 0, balance: 0, totalKm: 0, todayKm: 0,
+      kmLimit: BASE_KM_LIMIT, gpsUnlocked: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.collection("users").doc(uid).set(userData);
+
+    // Credit referrer
+    if(refBy){
+      const refSnap = await db.collection("users").where("refCode","==",refBy).get();
+      if(!refSnap.empty){
+        const refDoc = refSnap.docs[0];
+        await db.collection("users").doc(refDoc.id).update({
+          referralCount: firebase.firestore.FieldValue.increment(1),
+          kmLimit: firebase.firestore.FieldValue.increment(REF_BONUS_KM),
+          wallet: firebase.firestore.FieldValue.increment(REF_BONUS_CASH),
+          balance: firebase.firestore.FieldValue.increment(REF_BONUS_CASH)
+        });
+        // Log referral earning
+        await db.collection("km_logs").add({
+          uid: refDoc.id, type: "referral", earned: REF_BONUS_CASH,
+          kmBonus: REF_BONUS_KM, referredEmail: email,
+          date: todayStr(), ts: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+
+    showToast("✅ Account created! Welcome, " + name);
+  } catch(e){
+    if(regBtn){ regBtn.disabled = false; regBtn.textContent = "Create Free Account"; }
+    const code = e.code || "";
+    let msg = "Registration failed.";
+    if(code === "auth/email-already-in-use") msg = "This email is already registered. Please login.";
+    else if(code === "auth/invalid-email")   msg = "Invalid email address.";
+    else if(code === "auth/weak-password")   msg = "Password too weak (min 6 chars).";
+    else if(code === "auth/network-request-failed") msg = "Network error. Check internet.";
+    else if(e.message) msg = e.message;
+    showToast("❌ " + msg);
+  }
+}
+
+// ===== LOGIN =====
+async function doLogin(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass  = document.getElementById("loginPass").value;
+  if(!email||!pass) return showToast("⚠ Enter email & password");
+  const btn = document.getElementById("btnLogin");
+  if(btn){ btn.disabled = true; btn.textContent = "Logging in..."; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = "Login to My Account"; }
+    const code = e.code || "";
+    let msg = "Login failed. Try again.";
+    if(code === "auth/user-not-found")         msg = "No account with this email. Please register.";
+    else if(code === "auth/wrong-password")    msg = "Wrong password. Try again.";
+    else if(code === "auth/invalid-email")     msg = "Invalid email address.";
+    else if(code === "auth/invalid-credential")msg = "Wrong email or password.";
+    else if(code === "auth/too-many-requests") msg = "Too many attempts. Try later.";
+    else if(code === "auth/network-request-failed") msg = "Network error. Check internet.";
+    else if(e.message)                         msg = e.message;
+    showToast("❌ " + msg);
+  }
+}
+
+// ===== LOGOUT =====
+async function doLogout(){
+  stopGPS();
+  await auth.signOut();
+}
+
+// ===== LOAD USER DATA =====
+async function loadUserData(){
+  if(!currentUser) return;
+  const snap = await db.collection("users").doc(currentUser.uid).get();
+  if(!snap.exists){ showToast("Profile not found"); return; }
+  const d = snap.data();
+  S = {
+    wallet: d.wallet||0, totalKm: d.totalKm||0, todayKm: d.todayKm||0,
+    kmLimit: d.kmLimit||BASE_KM_LIMIT, referralCount: d.referralCount||0,
+    gpsUnlocked: d.gpsUnlocked||false, refCode: d.refCode||"",
+    upiId: d.upiId||"", name: d.name||"Walker"
+  };
+
+  // Update last seen & today reset
+  const updates = { lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
+  const lastDate = d.lastDate || "";
+  if(lastDate !== todayStr()){
+    updates.todayKm  = 0;
+    updates.lastDate = todayStr();
+    S.todayKm = 0;
+  }
+  await db.collection("users").doc(currentUser.uid).update(updates);
+
+  renderUserUI();
+
+  // Real-time listener
+  db.collection("users").doc(currentUser.uid).onSnapshot((doc) => {
+    if(!doc.exists) return;
+    const d2 = doc.data();
+    S.wallet   = d2.wallet||0;
+    S.totalKm  = d2.totalKm||0;
+    S.todayKm  = d2.todayKm||0;
+    S.kmLimit  = d2.kmLimit||BASE_KM_LIMIT;
+    S.gpsUnlocked = d2.gpsUnlocked||false;
+    S.referralCount = d2.referralCount||0;
+    S.upiId    = d2.upiId||"";
+    S.name     = d2.name||"Walker";
+    renderUserUI();
+  });
+}
+
+function renderUserUI(){
+  const initials = (S.name||"W").charAt(0).toUpperCase();
+  document.getElementById("headerName").textContent   = S.name||"Walker";
+  document.getElementById("headerAvatar").textContent = initials;
+  document.getElementById("walletAmt").textContent    = S.wallet.toFixed(2);
+  document.getElementById("statTotalKm").textContent  = S.totalKm.toFixed(2);
+  document.getElementById("statTodayKm").textContent  = S.todayKm.toFixed(2);
+  document.getElementById("statRefs").textContent     = S.referralCount;
+  document.getElementById("refCodeDisplay").textContent  = S.refCode||"------";
+  document.getElementById("totalRefCount").textContent   = S.referralCount;
+  document.getElementById("kmUsedDisplay").textContent   = S.totalKm.toFixed(1);
+  document.getElementById("kmLimitDisplay").textContent  = S.kmLimit;
+  const remaining = Math.max(0, S.kmLimit - S.totalKm);
+  document.getElementById("kmRemainingDisplay").textContent = remaining.toFixed(1);
+  const pct = Math.min(100, (S.totalKm / S.kmLimit)*100);
+  document.getElementById("kmProgressFill").style.width = pct + "%";
+
+  // Profile tab
+  document.getElementById("profileAvatar").textContent = initials;
+  document.getElementById("profileName").textContent   = S.name;
+  document.getElementById("profileEmail").textContent  = currentUser?.email||"";
+  document.getElementById("profileUpi").textContent    = S.upiId||"Not set";
+  document.getElementById("profileRefCode").textContent = S.refCode||"--";
+  document.getElementById("profileRefs").textContent   = S.referralCount;
+  document.getElementById("profileGpsStatus").textContent = S.gpsUnlocked?"✅ Unlocked":"🔒 Locked";
+  document.getElementById("profileGpsStatus").style.color = S.gpsUnlocked?"var(--g3)":"var(--red)";
+
+  // Show/hide GPS cards
+  document.getElementById("gpsLockedCard").classList.toggle("hidden",  S.gpsUnlocked);
+  document.getElementById("gpsActiveCard").classList.toggle("hidden", !S.gpsUnlocked);
+}
+
+// ===== GPS TRACKING =====
+function startGPS(){
+  if(!S.gpsUnlocked){ openPayModal(); return; }
+  const remaining = (S.kmLimit||BASE_KM_LIMIT) - (S.totalKm||0);
+  if(remaining <= 0){ showToast("⚠ KM limit reached. Refer friends for +300 km."); return; }
+  if(!navigator.geolocation){ showToast("⚠ Geolocation not supported on this device."); return; }
+
+  gpsRunning = true; gpsPaused = false;
+  gpsSessionKm = 0; gpsPendingKm = 0;
+  gpsLastPos = null; gpsLastTimestamp = 0;
+
+  setGpsButtons(true);
+  showToast("📍 GPS started — Walk and earn ₹2/km", 2500);
+  document.getElementById("gpsDot").classList.add("running");
+  document.getElementById("gpsStatusText").textContent = "Running";
+
+  gpsWatchId = navigator.geolocation.watchPosition(
+    onGpsUpdate,
+    (err) => { showToast("⚠ GPS error: " + err.message); stopGPS(); },
+    { enableHighAccuracy:true, maximumAge:5000, timeout:15000 }
+  );
+}
+
+function onGpsUpdate(pos){
+  if(!gpsRunning || gpsPaused) return;
+  const { latitude:lat, longitude:lon, speed, accuracy } = pos.coords;
+  const timestamp = pos.timestamp;
+
+  if(accuracy > 30){ return; } // low accuracy
+  const spdKmH = speed != null ? speed*3.6 : 0;
+  document.getElementById("gpsSpeed").textContent = spdKmH.toFixed(1);
+
+  // Speed filter: walking = 0.5 to 8 km/h
+  if(speed !== null && (speed < 0.14 || speed > 2.22)){ gpsLastPos = null; return; }
+
+  if(gpsLastPos){
+    const distKm    = haversineKm(gpsLastPos.lat, gpsLastPos.lon, lat, lon);
+    const timeDelta = (timestamp - gpsLastTimestamp) / 1000;
+
+    if(timeDelta > 0 && distKm > 0){
+      const instantKmH = (distKm / timeDelta) * 3600;
+      if(instantKmH > 10 || instantKmH < 0.5){ gpsLastPos=null; return; }
+    }
+
+    // Valid step: 3m–200m per update
+    if(distKm > 0.003 && distKm < 0.2){
+      gpsSessionKm += distKm;
+      gpsPendingKm += distKm;
+
+      document.getElementById("sessionKmDisplay").textContent  = gpsSessionKm.toFixed(3);
+      document.getElementById("sessionEarnDisplay").textContent = (gpsSessionKm * EARN_PER_KM).toFixed(2);
+
+      if(gpsPendingKm >= 0.1){
+        saveGPSChunk(gpsPendingKm);
+        gpsPendingKm = 0;
+      }
+    }
+  }
+
+  gpsLastPos = { lat, lon };
+  gpsLastTimestamp = timestamp;
+}
+
+function pauseGPS(){
+  gpsPaused = !gpsPaused;
+  document.getElementById("btnPause").textContent = gpsPaused ? "▶ Resume" : "⏸ Pause";
+  document.getElementById("gpsStatusText").textContent = gpsPaused ? "Paused" : "Running";
+  document.getElementById("gpsDot").classList.toggle("running", !gpsPaused);
+  showToast(gpsPaused ? "⏸ GPS Paused" : "▶ GPS Resumed");
+}
+
+function stopGPS(){
+  if(gpsWatchId){ navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; }
+  gpsRunning = false; gpsPaused = false;
+
+  if(gpsPendingKm > 0.01) saveGPSChunk(gpsPendingKm);
+  gpsPendingKm = 0;
+
+  setGpsButtons(false);
+  document.getElementById("gpsDot").classList.remove("running");
+  document.getElementById("gpsStatusText").textContent = "Ready";
+  document.getElementById("gpsSpeed").textContent = "0.0";
+  showToast("✅ Session saved! Great walk 🏃");
+}
+
+function setGpsButtons(running){
+  document.getElementById("btnStart").disabled = running;
+  document.getElementById("btnPause").disabled = !running;
+  document.getElementById("btnStop").disabled  = !running;
+}
+
+async function saveGPSChunk(km){
+  if(!currentUser || km < 0.01) return;
+  const userRef = db.collection("users").doc(currentUser.uid);
+  try {
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(userRef);
+      if(!snap.exists) return;
+      const d = snap.data();
+      const curTotal  = d.totalKm  || 0;
+      const curLimit  = d.kmLimit  || BASE_KM_LIMIT;
+      const remaining = curLimit - curTotal;
+      if(remaining <= 0){ stopGPS(); showToast("⚠ KM limit reached!"); return; }
+      const allowed = Math.min(km, remaining);
+      const earned  = allowed * EARN_PER_KM;
+
+      tx.update(userRef, {
+        totalKm: curTotal + allowed,
+        todayKm: (d.todayKm||0) + allowed,
+        wallet:  (d.wallet||0) + earned,
+        balance: (d.balance||0) + earned,
+        lastDate: todayStr()
+      });
+      tx.set(db.collection("km_logs").doc(), {
+        uid: currentUser.uid, type: "walk", km: allowed, earned,
+        date: todayStr(), ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+  } catch(e){ console.error("saveGPSChunk:", e); }
+}
+
+// ===== PAYMENT =====
+function openPayModal(){
+  document.getElementById("payModal").classList.add("open");
+}
+function closePayModal(){
+  document.getElementById("payModal").classList.remove("open");
+  document.getElementById("payUtrInput").value = "";
+}
+
+async function submitPayment(){
+  const utr = document.getElementById("payUtrInput").value.trim();
+  if(!utr || utr.length < 6) return showToast("⚠ Enter a valid UTR/Transaction ID");
+  if(!currentUser) return;
+
+  // Check duplicate UTR
+  const existing = await db.collection("pay_requests").where("utr","==",utr).get();
+  if(!existing.empty) return showToast("⚠ This UTR has already been submitted.");
+
+  try {
+    await db.collection("pay_requests").add({
+      uid: currentUser.uid, email: currentUser.email,
+      name: S.name, utr, amount: GPS_PRICE,
+      status: "pending", upiPaidTo: PLATFORM_UPI,
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closePayModal();
+    showToast("✅ Payment submitted! Approval within 24 hours.", 4000);
+  } catch(e){ showToast("❌ Submission failed. Try again."); }
+}
+
+// ===== WITHDRAWAL =====
+function openUpiSheet(){
+  document.getElementById("sheetBalance").textContent = S.wallet.toFixed(2);
+  document.getElementById("wdUpiId").value = S.upiId||"";
+  document.getElementById("upiSheet").classList.add("open");
+  document.getElementById("sheetOverlay").classList.add("open");
+}
+function closeUpiSheet(){
+  document.getElementById("upiSheet").classList.remove("open");
+  document.getElementById("sheetOverlay").classList.remove("open");
+}
+
+async function submitWithdrawal(){
+  const amount = parseFloat(document.getElementById("wdAmount").value);
+  const upiId  = document.getElementById("wdUpiId").value.trim();
+
+  if(!upiId)            return showToast("⚠ Enter your UPI ID");
+  if(isNaN(amount)||amount < MIN_WITHDRAW) return showToast(`⚠ Minimum withdrawal is ₹${MIN_WITHDRAW}`);
+  if(amount > S.wallet) return showToast("⚠ Insufficient balance");
+
+  try {
+    const userRef = db.collection("users").doc(currentUser.uid);
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(userRef);
+      const d = snap.data();
+      if((d.wallet||0) < amount) throw new Error("Insufficient balance");
+      tx.update(userRef, {
+        wallet:  (d.wallet||0)  - amount,
+        balance: (d.balance||0) - amount
+      });
+      tx.set(db.collection("withdrawals").doc(), {
+        uid: currentUser.uid, email: currentUser.email,
+        name: S.name, upiId, amount,
+        status: "pending",
+        ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      tx.set(db.collection("km_logs").doc(), {
+        uid: currentUser.uid, type: "withdrawal",
+        amount: -amount, upiId,
+        date: todayStr(), ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    closeUpiSheet();
+    showToast("✅ Withdrawal request submitted! Processed within 24h.", 4000);
+  } catch(e){ showToast("❌ " + (e.message||"Withdrawal failed")); }
+}
+
+// ===== HISTORY =====
+async function loadHistory(){
+  if(!currentUser) return;
+  const snap = await db.collection("km_logs")
+    .where("uid","==",currentUser.uid)
+    .orderBy("ts","desc").limit(30).get();
+
+  if(snap.empty){
+    document.getElementById("historyList").innerHTML =
+      '<div class="empty-state"><div class="empty-icon">📭</div>No history yet. Start walking!</div>';
+    return;
+  }
+
+  let html = "";
+  snap.forEach(doc => {
+    const d = doc.data();
+    if(d.type === "walk"){
+      html += `<div class="history-item">
+        <div class="history-left">
+          <div class="history-type">🚶 Walk Session</div>
+          <div class="history-date">${d.date||""} · ${d.km?.toFixed(3)} km</div>
+        </div>
+        <div class="history-amount">+₹${d.earned?.toFixed(2)||"0"}</div>
+      </div>`;
+    } else if(d.type === "referral"){
+      html += `<div class="history-item">
+        <div class="history-left">
+          <div class="history-type">👥 Referral Bonus</div>
+          <div class="history-date">${d.date||""}</div>
+        </div>
+        <div class="history-amount">+₹${d.earned||REF_BONUS_CASH}</div>
+      </div>`;
+    } else if(d.type === "withdrawal"){
+      html += `<div class="history-item">
+        <div class="history-left">
+          <div class="history-type">💸 Withdrawal</div>
+          <div class="history-date">${d.date||""} · ${d.upiId||""}</div>
+        </div>
+        <div class="history-amount minus">-₹${Math.abs(d.amount||0).toFixed(2)}</div>
+      </div>`;
+    }
+  });
+  document.getElementById("historyList").innerHTML = html;
+}
+
+// ===== LEADERBOARD =====
+async function loadLeaderboard(){
+  const snap = await db.collection("users").orderBy("totalKm","desc").limit(20).get();
+  if(snap.empty){
+    document.getElementById("leaderboardList").innerHTML = '<div class="empty-state"><div class="empty-icon">🏅</div>No walkers yet</div>';
+    return;
+  }
+  let html = "";
+  let rank  = 1;
+  snap.forEach(doc => {
+    const d = doc.data();
+    const rankClass = rank===1?"gold-rank":rank===2?"silver-rank":rank===3?"bronze-rank":"";
+    const medal = rank===1?"🥇":rank===2?"🥈":rank===3?"🥉":"";
+    html += `<div class="leader-item">
+      <div class="leader-rank ${rankClass}">${medal||rank}</div>
+      <div class="leader-name">${esc(d.name||"Walker")}</div>
+      <div class="leader-km">${(d.totalKm||0).toFixed(1)} km</div>
+    </div>`;
+    rank++;
+  });
+  document.getElementById("leaderboardList").innerHTML = html;
+}
+
+// ===== REFERRAL =====
+function copyRefCode(){
+  const code = S.refCode;
+  if(!code) return;
+  const link = `${location.origin}${location.pathname}?ref=${code}`;
+  navigator.clipboard?.writeText(link).then(() => showToast("✅ Referral link copied!"))
+    .catch(() => { /* fallback */ showToast("Code: " + code); });
+}
+
+// ===== UPDATE UPI =====
+async function updateUpi(){
+  const upi = document.getElementById("updateUpiInput").value.trim();
+  if(!upi) return showToast("⚠ Enter a valid UPI ID");
+  try {
+    await db.collection("users").doc(currentUser.uid).update({ upiId: upi });
+    showToast("✅ UPI ID updated!");
+  } catch(e){ showToast("❌ Update failed"); }
+}
+
+// ===== ADMIN =====
+async function adminLogin(){
+  const email = document.getElementById("adminEmail").value.trim();
+  const pass  = document.getElementById("adminPass").value;
+  if(!email||!pass) return showToast("⚠ Enter credentials");
+  const btn = document.getElementById("btnLogin");
+  if(btn){ btn.disabled = true; btn.textContent = "Logging in..."; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = "Login to My Account"; }
+    const code = e.code || "";
+    let msg = "Admin login failed.";
+    if(code === "auth/user-not-found")         msg = "Admin account not found.";
+    else if(code === "auth/wrong-password")    msg = "Wrong admin password.";
+    else if(code === "auth/invalid-credential")msg = "Wrong email or password.";
+    else if(code === "auth/too-many-requests") msg = "Too many attempts. Try later.";
+    else if(e.message) msg = e.message;
+    showToast("❌ " + msg);
+  }
+}
+
+function adminLogout(){
+  stopGPS();
+  auth.signOut();
+}
+
+async function initializeAdminDashboard(){
+  document.getElementById("adminLoginBox").style.display = "none";
+  document.getElementById("adminDash").style.display = "block";
+
+  // Stats
+  const usersSnap = await db.collection("users").get();
+  document.getElementById("adminTotalUsers").textContent = usersSnap.size;
+  let unlocked = 0;
+  usersSnap.forEach(d => { if(d.data().gpsUnlocked) unlocked++; });
+  document.getElementById("adminUnlocked").textContent = unlocked;
+
+  await loadPaymentList();
+  await loadWithdrawalList();
+}
+
+async function loadPaymentList(){
+  const snap = await db.collection("pay_requests").where("status","==","pending")
+    .orderBy("ts","desc").get();
+  document.getElementById("adminPendingPay").textContent = snap.size;
+
+  if(snap.empty){
+    document.getElementById("adminPayList").innerHTML =
+      '<div style="color:rgba(255,255,255,.4);font-size:.85rem;padding:10px">No pending payments</div>';
+    return;
+  }
+  let html = "";
+  snap.forEach(doc => {
+    const d = doc.data();
+    const id = doc.id;
+    html += `<div class="pay-request-card">
+      <div class="pay-req-top">
+        <div>
+          <div class="pay-req-email">${esc(d.name||"")} <span style="color:rgba(255,255,255,.4);font-weight:400;font-size:.78rem">${esc(d.email||"")}</span></div>
+          <div class="pay-req-utr">UTR: ${esc(d.utr||"--")}</div>
+        </div>
+        <div class="pay-req-amount">₹${d.amount||GPS_PRICE}</div>
+      </div>
+      <span class="pay-req-status status-pending">PENDING</span>
+      <div class="admin-action-row">
+        <button class="btn-approve" onclick="approvePayment('${id}','${d.uid}')">✅ Approve</button>
+        <button class="btn-reject"  onclick="rejectPayment('${id}')">❌ Reject</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById("adminPayList").innerHTML = html;
+}
+
+async function approvePayment(docId, uid){
+  try {
+    await db.collection("users").doc(uid).update({ gpsUnlocked: true });
+    await db.collection("pay_requests").doc(docId).update({
+      status: "approved", approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast("✅ GPS unlocked for user");
+    loadPaymentList();
+    initializeAdminDashboard();
+  } catch(e){ showToast("❌ Error: " + e.message); }
+}
+
+async function rejectPayment(docId){
+  try {
+    await db.collection("pay_requests").doc(docId).update({ status: "rejected" });
+    showToast("Payment rejected");
+    loadPaymentList();
+  } catch(e){ showToast("❌ Error: " + e.message); }
+}
+
+async function loadWithdrawalList(){
+  const snap = await db.collection("withdrawals").where("status","==","pending")
+    .orderBy("ts","desc").get();
+  document.getElementById("adminPendingWd").textContent = snap.size;
+
+  if(snap.empty){
+    document.getElementById("adminWdList").innerHTML =
+      '<div style="color:rgba(255,255,255,.4);font-size:.85rem;padding:10px">No pending withdrawals</div>';
+    return;
+  }
+  let html = "";
+  snap.forEach(doc => {
+    const d = doc.data();
+    const id = doc.id;
+    html += `<div class="withdrawal-card">
+      <div class="wd-top">
+        <div>
+          <div class="wd-email">${esc(d.name||"")} · <span style="color:rgba(255,255,255,.4);font-size:.78rem">${esc(d.email||"")}</span></div>
+          <div class="wd-upi">UPI: ${esc(d.upiId||"--")}</div>
+        </div>
+        <div class="wd-amount">₹${d.amount||0}</div>
+      </div>
+      <span class="pay-req-status status-pending">PENDING</span>
+      <button class="btn-wd-done" onclick="markWithdrawalDone('${id}')">✅ Mark as Paid</button>
+    </div>`;
+  });
+  document.getElementById("adminWdList").innerHTML = html;
+}
+
+async function markWithdrawalDone(docId){
+  try {
+    await db.collection("withdrawals").doc(docId).update({
+      status: "paid", paidAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast("✅ Withdrawal marked as paid");
+    loadWithdrawalList();
+  } catch(e){ showToast("❌ Error: " + e.message); }
+}
+
+// ===== HELPERS =====
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2
+    + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+async function generateUniqueRefCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+  let code;
+  let tries = 0;
+  do {
+    code = Array(8).fill(0).map(()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+    tries++;
+    if(tries > 20) break;
+  } while(!(await db.collection("users").where("refCode","==",code).get()).empty);
+  return code;
+}
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function esc(s){
+  if(typeof s !== "string") return "";
+  return s.replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]||m);
+}
+
+let toastTimer = null;
+function showToast(msg, dur=3000){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.display="none"; }, dur);
+}
+
+// ===== GLOBAL EXPOSE =====
+window.switchTab        = switchTab;
+window.switchAuthTab    = switchAuthTab;
+window.doLogin          = doLogin;
+window.doRegister       = doRegister;
+window.doLogout         = doLogout;
+window.startGPS         = startGPS;
+window.pauseGPS         = pauseGPS;
+window.stopGPS          = stopGPS;
+window.openPayModal     = openPayModal;
+window.closePayModal    = closePayModal;
+window.submitPayment    = submitPayment;
+window.openUpiSheet     = openUpiSheet;
+window.closeUpiSheet    = closeUpiSheet;
+window.submitWithdrawal = submitWithdrawal;
+window.copyRefCode      = copyRefCode;
+window.updateUpi        = updateUpi;
+window.adminLogin       = adminLogin;
+window.adminLogout      = adminLogout;
+window.approvePayment   = approvePayment;
+window.rejectPayment    = rejectPayment;
+window.markWithdrawalDone = markWithdrawalDone;
+
+console.log("%c🏃 Health is Wealth v3.0 — Production Ready", "color:#12803e;font-size:14px;font-weight:bold");
+console.log("%c💰 UPI: bonagirispinoj-1@oksbi | Unlock: ₹1,999 | Rate: ₹2/km | Referral: ₹300 + 300km", "color:#f0b429;font-size:11px");
+</script>
+</body>
+</html>
